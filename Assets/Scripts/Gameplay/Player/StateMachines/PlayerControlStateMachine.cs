@@ -18,19 +18,9 @@ public class PlayerControlStateMachine : MonoBehaviour, IStateMachine {
     private IState nextState;
 
     private IState playerMovementState;
-    private IState loadingState;
-
-    private IStateMachine playerStateMachine;
-    private SwitchStateMachineState switchToPlayerStateMachine;
-
 
     private void Start () {
-        playerStateMachine = GetComponent<PlayerStateMachine>();
-
-        loadingState = new LoadingState(gameObject);
         playerMovementState = new PlayerMovementState(gameObject);
-        
-        switchToPlayerStateMachine = new SwitchStateMachineState(this, playerStateMachine, loadingState);
 
         currentState = playerMovementState;
         currentState.OnEnterState();
@@ -47,7 +37,10 @@ public class PlayerControlStateMachine : MonoBehaviour, IStateMachine {
 
 
     public void SetState(IState nextState) {
-        currentState.OnExitState();
+        if (currentState != null) {
+            currentState.OnExitState();
+        }
+        
         currentState = nextState;
         currentState.OnEnterState();
     }

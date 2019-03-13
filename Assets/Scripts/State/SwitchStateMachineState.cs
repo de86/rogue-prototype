@@ -3,14 +3,14 @@ using UnityEngine;
 public class SwitchStateMachineState : IState {
 
     private IStateMachine nextStateMachine;
-    private IStateMachine currentStateMachine;
+    private IStateMachine fromStateMachine;
 
     private IState nextState;
 
 
-    public SwitchStateMachineState (IStateMachine currentStateMachine, IStateMachine nextStateMachine, IState nextState) {
+    public SwitchStateMachineState (IStateMachine fromStateMachine, IStateMachine nextStateMachine, IState nextState) {
         this.nextStateMachine = nextStateMachine;
-        this.currentStateMachine = currentStateMachine;
+        this.fromStateMachine = fromStateMachine;
 
         this.nextState = nextState;
     }
@@ -18,8 +18,8 @@ public class SwitchStateMachineState : IState {
 
     public void OnEnterState () {
         nextStateMachine.Enable();
+        fromStateMachine.Disable();
         nextStateMachine.SetState(nextState);
-        currentStateMachine.Disable();
     }
 
     public IState StateUpdate (float deltaTime) {

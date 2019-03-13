@@ -1,8 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LoadingState : AbstractState<PlayerStates> {
+public class PlayerAttackState : AbstractState<PlayerStates> {
 
     private PlayerMovementController movementController;
     private PlayerWeaponController weaponController;
@@ -10,21 +10,11 @@ public class LoadingState : AbstractState<PlayerStates> {
     private Dictionary<PlayerStates, IState> stateTransitions = new Dictionary<PlayerStates, IState>();
 
 
-
-    public LoadingState (GameObject player) : base (player) {
-        stateName = PlayerStates.Loading;
+    public PlayerAttackState (GameObject player) : base (player) {
+        stateName = PlayerStates.PlayerControl;
 
         movementController = player.GetComponent<PlayerMovementController>();
         weaponController = player.GetComponentInChildren<PlayerWeaponController>();
-    }
-	
-
-    private IState GetStateMachineSwitchState () {
-        IStateMachine PlayerControlStateMachine = player.GetComponent<PlayerControlStateMachine>();
-        IStateMachine PlayerStateMachine = player.GetComponent<PlayerStateMachine>();
-        IState PlayerMovementState = new PlayerMovementState(player);
-
-        return new SwitchStateMachineState(PlayerStateMachine, PlayerControlStateMachine, PlayerMovementState);
     }
 
 
@@ -32,11 +22,23 @@ public class LoadingState : AbstractState<PlayerStates> {
         stateTransitions.Add(key, state);
     }
 
+    // attakc state that attacks and pauses movement
+    // IStateTransition object containing next state object and components enabled state
+
+    private IState GetStateMachineSwitchState () {
+        IStateMachine playerControlStateMachine = player.GetComponent<PlayerControlStateMachine>();
+        IStateMachine playerStateMachine = player.GetComponent<PlayerStateMachine>();
+        IState loadingState = new LoadingState(player);
+
+        return new SwitchStateMachineState(playerControlStateMachine, playerStateMachine, loadingState);
+    }
 
 
     public override void OnEnterState () {
-        player.GetComponent<PlayerMovementController>().enabled = false;
-        player.GetComponentInChildren<PlayerWeaponController>().enabled = false;
+        Debug.Log("OnEnterState ()");
+
+        movementController.enabled = false;
+        weaponController.enabled = true;
     }
 
 
@@ -54,8 +56,10 @@ public class LoadingState : AbstractState<PlayerStates> {
 
 
     public override void OnExitState () {
-        player.GetComponent<PlayerMovementController>().enabled = true;
-        player.GetComponentInChildren<PlayerWeaponController>().enabled = true;
+        Debug.Log("OnExitState ()");
+
+        movementController.enabled = true;
+        weaponController.enabled = true;
     }
 
 

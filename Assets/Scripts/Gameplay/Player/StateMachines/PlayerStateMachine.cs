@@ -19,6 +19,8 @@ public class PlayerStateMachine : MonoBehaviour, IStateMachine {
     private IState currentState;
     private IState nextState;
 
+    private PlayerStates currentStateName;
+
     private PlayerMovementController movementController;
     private PlayerWeaponController weaponController;
     
@@ -30,9 +32,6 @@ public class PlayerStateMachine : MonoBehaviour, IStateMachine {
         currentState = new LoadingState(gameObject);
         currentState.OnEnterState();
     }
-	
-
-    // Created working FSM! maybe look at abstract state and fsm class next
 
 	// Update is called once per frame
 	private void Update () {
@@ -44,7 +43,10 @@ public class PlayerStateMachine : MonoBehaviour, IStateMachine {
 	}
 
     public void SetState(IState nextState) {
-        currentState.OnExitState();
+        if (currentState != null) {
+            currentState.OnExitState();
+        }
+        
         currentState = nextState;
         currentState.OnEnterState();
     }

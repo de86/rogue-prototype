@@ -7,28 +7,23 @@ public class PlayerMovementState : AbstractState<PlayerStates> {
     private PlayerMovementController movementController;
     private PlayerWeaponController weaponController;
 
-    private PlayerControlStateMachine playerControlStateMachine;
-    private PlayerStateMachine playerStateMachine;
-
-    private IState loadingState;
-
-    private SwitchStateMachineState SwitchToPlayerStateMachine;
-
     private Dictionary<PlayerStates, IState> stateTransitions = new Dictionary<PlayerStates, IState>();
 
 
     public PlayerMovementState (GameObject player) : base (player) {
         stateName = PlayerStates.PlayerControl;
 
-        playerControlStateMachine = player.GetComponent<PlayerControlStateMachine>();
-        playerStateMachine = player.GetComponent<PlayerStateMachine>();
-
-        loadingState = new LoadingState(player);
-
-        SwitchToPlayerStateMachine = new SwitchStateMachineState(playerControlStateMachine, playerStateMachine, loadingState);
-
         movementController = player.GetComponent<PlayerMovementController>();
         weaponController = player.GetComponentInChildren<PlayerWeaponController>();
+    }
+
+
+    private IState GetStateMachineSwitchState () {
+        IStateMachine playerControlStateMachine = player.GetComponent<PlayerControlStateMachine>();
+        IStateMachine playerStateMachine = player.GetComponent<PlayerStateMachine>();
+        IState loadingState = new LoadingState(player);
+
+        return new SwitchStateMachineState(playerControlStateMachine, playerStateMachine, loadingState);
     }
 	
 
@@ -40,19 +35,19 @@ public class PlayerMovementState : AbstractState<PlayerStates> {
 
 
     public override void OnEnterState () {
-        Debug.Log("OnEnterState ()");
+        Debug.Log("PlayerMovementState.OnEnterState()");
 
-        movementController.enabled = true;
-        weaponController.enabled = true;
+        player.GetComponent<PlayerMovementController>().enabled = true;
+        player.GetComponentInChildren<PlayerWeaponController>().enabled = true;
     }
 
 
 
     public override IState StateUpdate (float deltaTime) {
-        Debug.Log("Updating " + stateName.ToString());
+        Debug.Log("Updating" + stateName.ToString());
 
         if (Input.GetKeyDown("space")) {
-            return SwitchToPlayerStateMachine;
+            return GetStateMachineSwitchState();
         }
 
         return null;
@@ -61,10 +56,10 @@ public class PlayerMovementState : AbstractState<PlayerStates> {
 
 
     public override void OnExitState () {
-        Debug.Log("OnExitState ()");
+        Debug.Log("PlayerMovementState.OnExitState()");
 
-        movementController.enabled = false;
-        weaponController.enabled = false;
+        player.GetComponent<PlayerMovementController>().enabled = false;
+        player.GetComponentInChildren<PlayerWeaponController>().enabled = false;
     }
 
 
