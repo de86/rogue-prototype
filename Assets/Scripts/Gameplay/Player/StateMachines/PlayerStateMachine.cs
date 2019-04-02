@@ -3,21 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Move to enum file
-public enum PlayerStates
-{
-    Loading,
-    Saving,
-    PlayerControl,
-    Cutscene,
-    SwitchToPlayerControlSM
-}
-
-public class PlayerStateMachine : MonoBehaviour, IStateMachine {
-
-    [SerializeField]
-    private IState currentState;
-    private IState nextState;
+public class PlayerStateMachine : StateMachine, IStateMachine {
 
     private PlayerStates currentStateName;
 
@@ -29,56 +15,13 @@ public class PlayerStateMachine : MonoBehaviour, IStateMachine {
         movementController = GetComponent<PlayerMovementController>();
         weaponController = GetComponentInChildren<PlayerWeaponController>();
 
-        currentState = new LoadingState(gameObject);
-        currentState.OnEnterState();
+        base.Init(new LoadingState(gameObject));
     }
 
-	// Update is called once per frame
-	private void Update () {
-		nextState = currentState.StateUpdate(Time.deltaTime);
-
-        if (nextState != null) {
-            SetState(nextState);
-        }
-	}
-
-    public void SetState(IState nextState) {
-        if (currentState != null) {
-            currentState.OnExitState();
-        }
-        
-        currentState = nextState;
-        currentState.OnEnterState();
-    }
-
-    public void Enable() {
-        this.enabled = true;
-    }
-
-    public void Disable() {
+    public new void Disable() {
         movementController.enabled = false;
         weaponController.enabled = false;
 
-        enabled = false;
-    }
-
-    public void PauseState() {
-        Debug.Log("PauseState()");
-    }
-
-    public void ResumeState() {
-        Debug.Log("ResumeState()");
-    }
-
-    public void SaveState() {
-        Debug.Log("SaveState()");
-    }
-
-    public void RestoreState() {
-        Debug.Log("RestoreState()");
-    }
-
-    public IState GetCurrentState() {
-        return currentState;
+        base.Disable();
     }
 }

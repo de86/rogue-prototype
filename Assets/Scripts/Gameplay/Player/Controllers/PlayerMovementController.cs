@@ -12,13 +12,15 @@ public class PlayerMovementController : MonoBehaviour {
     [SerializeField]
 	private float MAX_DODGE_SPEED = 15f;
     [SerializeField]
-    private float DODGE_COOLDOWN_TIME = 0.7f;
+    private float DODGE_COOLDOWN_TIME = 0.2f;
     [SerializeField]
     private float ACCELERATION = 0.95f;
     [SerializeField]
     private float DECELERATION = 0.9f;
     [SerializeField]
-    private float CONTROLLER_DEAD_ZONE = 0.4f;
+    private float CONTROLLER_DEAD_ZONE = 0.2f;
+    [SerializeField]
+    private FloatVariable playerDirection;
 
     private float speed = 0f;
     private float dodgeSpeed;
@@ -31,7 +33,6 @@ public class PlayerMovementController : MonoBehaviour {
     private Vector2 direction = Vector2.zero;
     private Vector2 lastMoveDirection = Vector2.zero;
 
-    // Replace with values from Scriptable Objects
     private enum MovementState
     {
         Walking,
@@ -55,7 +56,7 @@ public class PlayerMovementController : MonoBehaviour {
         xAxisValue = Input.GetAxis("Horizontal");
         yAxisValue = Input.GetAxis("Vertical");
 
-        if (currentMovementState != MovementState.Dodging && Input.GetButtonDown("Fire2") && canDodge)
+        if (currentMovementState == MovementState.Walking && Input.GetButtonDown("Fire2") && canDodge)
         {
             currentMovementState = MovementState.Dodging;
         }
@@ -92,12 +93,14 @@ public class PlayerMovementController : MonoBehaviour {
     
     private void Walk ()
     {
-        if (GetShouldMove())
+        SetDirection();
+
+        if (CanMove(xAxisValue) || CanMove(yAxisValue))
         {
             speed = Math.Min(speed += ACCELERATION, MAX_MOVE_SPEED);
             direction.Set(xAxisValue, yAxisValue);
-            lastMoveDirection = direction;
-            velocity = direction * speed * Time.deltaTime;
+            SetLastMoveDirection(direction);
+            velocity = direction.normalized * speed * Time.deltaTime;
         }
         else
         {
@@ -117,8 +120,8 @@ public class PlayerMovementController : MonoBehaviour {
     {
         canDodge = false;
 
-        lastMoveDirection = direction;
-        velocity = direction * dodgeSpeed * Time.deltaTime;
+        SetLastMoveDirection(direction);
+        velocity = direction.normalized * dodgeSpeed * Time.deltaTime;
         transform.Translate(velocity);
 
         dodgeSpeed -= DECELERATION;
@@ -143,10 +146,10 @@ public class PlayerMovementController : MonoBehaviour {
 
     private void Block ()
     {
-        if (GetShouldMove())
+        if (CanMove(xAxisValue) || CanMove(yAxisValue))
         {
             direction.Set(xAxisValue, yAxisValue);
-            lastMoveDirection = direction;
+            SetLastMoveDirection(direction);
             velocity = direction * MAX_BLOCK_MOVE_SPEED * Time.deltaTime;
         }
         else
@@ -163,10 +166,22 @@ public class PlayerMovementController : MonoBehaviour {
     }
 
 
-
-    private Boolean GetShouldMove ()
+    private Boolean CanMove (float axis)
     {
-        return xAxisValue > CONTROLLER_DEAD_ZONE || xAxisValue < -CONTROLLER_DEAD_ZONE ||
-               yAxisValue > CONTROLLER_DEAD_ZONE || yAxisValue < -CONTROLLER_DEAD_ZONE;
+        return axis > CONTROLLER_DEAD_ZONE || axis < -CONTROLLER_DEAD_ZONE;
+    }
+
+
+    private void SetDirection ()
+    {
+        if (CanMove(xAxisValue)) {
+            float facingDirection = xAxisValue > 0 ? 1f : 0f;
+            playerDirection.SetValue(facingDirection);
+        }
+    }
+
+    private void SetLastMoveDirection (Vector2 direction)
+    {
+        lastMoveDirection = direction.normalized;
     }
 }

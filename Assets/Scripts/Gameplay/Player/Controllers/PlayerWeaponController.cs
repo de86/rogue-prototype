@@ -6,6 +6,9 @@ public class PlayerWeaponController : MonoBehaviour {
 
     private Animator animator;
 
+    [SerializeField]
+    private FloatVariable playerDirection;
+
     private float xAxisValue;
     private float lastXAxisValue = 0;
     private float attackDirection;
@@ -18,47 +21,19 @@ public class PlayerWeaponController : MonoBehaviour {
 	}
 	
 
-
 	// Update is called once per frame
 	private void Update () {
-        SetAnimatorAttackDirection();
-
         if (Input.GetButtonDown("Fire1")) {
             StartCoroutine(TriggerAttackAnimation());
         }
 	}
 
 
-
     private IEnumerator TriggerAttackAnimation ()
     {
+        animator.SetFloat("attackDirection", playerDirection.GetValue());
         animator.SetBool("isAttacking", true);
         yield return null;
         animator.SetBool("isAttacking", false);
-    }
-
-
-
-    private void SetAnimatorAttackDirection ()
-    {
-        xAxisValue = Input.GetAxis("Horizontal");
-
-        if (xAxisValue > 0.4 || xAxisValue < -0.4)
-        {
-            if (xAxisValue > 0)
-            {
-                animator.SetFloat("attackDirection", 1f);
-            }
-            else
-            {
-                animator.SetFloat("attackDirection", 0f);
-            }
-        }
-        else
-        {
-            animator.SetFloat("attackDirection", lastXAxisValue);
-        }
-
-        lastXAxisValue = xAxisValue;
     }
 }

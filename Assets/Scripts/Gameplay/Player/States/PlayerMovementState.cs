@@ -37,15 +37,13 @@ public class PlayerMovementState : AbstractState<PlayerStates> {
     public override void OnEnterState () {
         Debug.Log("PlayerMovementState.OnEnterState()");
 
-        player.GetComponent<PlayerMovementController>().enabled = true;
-        player.GetComponentInChildren<PlayerWeaponController>().enabled = true;
+        movementController.enabled = true;
+        weaponController.enabled = true;
     }
 
 
 
     public override IState StateUpdate (float deltaTime) {
-        Debug.Log("Updating" + stateName.ToString());
-
         if (Input.GetKeyDown("space")) {
             return GetStateMachineSwitchState();
         }
@@ -56,10 +54,8 @@ public class PlayerMovementState : AbstractState<PlayerStates> {
 
 
     public override void OnExitState () {
-        Debug.Log("PlayerMovementState.OnExitState()");
-
-        player.GetComponent<PlayerMovementController>().enabled = false;
-        player.GetComponentInChildren<PlayerWeaponController>().enabled = false;
+        movementController.enabled = false;
+        weaponController.enabled = false;
     }
 
 
